@@ -18,7 +18,7 @@ from werkzeug.exceptions import NotFound
 
 from wyzebridge.build_config import VERSION
 from wyze_bridge import WyzeBridge
-from wyzebridge import config, web_ui
+from wyzebridge import config, onvif, web_ui
 from wyzebridge.auth import WbAuth
 from wyzebridge.web_ui import url_for
 
@@ -31,6 +31,8 @@ def create_app():
         print(ex)
         print("Please ensure your host is up to date.")
         exit()
+
+    onvif.ws_discovery()
 
     def auth_required(view):
         @wraps(view)
@@ -133,6 +135,12 @@ def create_app():
         health_data = wb.health()
         return Response(json.dumps(health_data), mimetype="application/json")
     
+    @app.route("/onvif/device_service", methods=["POST"])
+    @app.route("/onvif/media_service", methods=["POST"])
+    def onvif_service():
+        response = onvif.service_resp(wb.streams)
+        return Response(response, content_type="application/soap+xml")
+
     @app.route("/api/sse_status")
     @auth_required
     def sse_status():

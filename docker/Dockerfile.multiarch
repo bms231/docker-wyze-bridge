@@ -18,7 +18,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         curl \
         gcc \
         libffi-dev \
-        tar; \
+        tar \
+        python3-lxml; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
