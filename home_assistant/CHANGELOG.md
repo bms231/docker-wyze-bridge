@@ -1,5 +1,15 @@
 # What's Changed
 
+## What's Changed in v3.13.0
+
+Upgraded MediaMTX to 1.13.0
+
+- Adds ports for encrypted STRP/SRTCP over UDP with/without Multicast
+  - 8004: SRTP UDP with encryption
+  - 8005: SRTCP UDP with encryption
+  - 8006: SRTP UDP-Multicast with encryption
+  - 8007: SRTCP UDP-Multicast with encryption
+
 ## What's Changed in v3.12.3
 
 Cleaned up the threading logic around startup/shutdown to reduce CPU and memory leaks
@@ -257,5 +267,78 @@ release with the PRs I know work. **Note** The badges on the GitHub repo may be 
 - Update: Update Homebridge-Camera-FFMpeg documentation link by @donavanbecker
 - FIX: Add formatting of {cam_name} and {img} to webhooks.py by @traviswparker which was lost
 - Chore: Adjust everything for move to my GitHub repo and Docker Hub account
+
+# Older @mrlt8 versions
+
+## What's Changed in v2.10.3
+
+- FIX: Increased `MTX_WRITEQUEUESIZE` to prevent issues with higher bitrates.
+- FIX: Restart RTMP livestream on fail (#1333)
+- FIX: Restore user data on bridge restart (#1334)
+- NEW: `SNAPSHOT_KEEP` Option to delete old snapshots when saving snapshots with a timelapse-like custom format with `SNAPSHOT_FORMAT`. (#1330)
+  - Example for 3 min: `SNAPSHOT_KEEP=180`, `SNAPSHOT_KEEP=180s`, `SNAPSHOT_KEEP=3m`
+  - Example for 3 days: `SNAPSHOT_KEEP=72h`, `SNAPSHOT_KEEP=3d`
+  - Example for 3 weeks: `SNAPSHOT_KEEP=21d`, `SNAPSHOT_KEEP=3w`
+- NEW: `RESTREAMIO` option for livestreaming via [restream.io](https://restream.io). (#1333)
+  - Example `RESTREAMIO_FRONT_DOOR=re_My_Custom_Key123`
+
+## What's Changed in v2.10.2
+
+- FIX: day/night FPS slowdown for V4 cameras (#1287) Thanks @cdoolin and @Answer-1!
+- NEW: Update battery level in WebUI
+
+## What's Changed in v2.10.0/v2.10.1
+
+FIXED: Could not disable `WB_AUTH` if `WB_API` is set. (#1304)
+
+### WebUI Authentication
+
+Simplify default credentials for the WebUI:
+
+- This will not affect users who are setting their own `WB_PASSWORD` and `WB_API`.
+- Default `WB_PASSWORD` will now be derived from the username part of the Wyze email address instead of using a randomly generated password.
+  - Example: For the email address `john123@doe.com`, the `WB_PASSWORD` will be `john123`.
+- Default `WB_API` will be based on the wyze account for persistance.
+
+### Stream Authentication
+
+NEW: `STREAM_AUTH` option to specify multiple users and paths:
+
+- Username and password should be separated by a `:`
+- An additional `:` can be used to specify the allowed IP address for the user.
+  - **This does NOT work with docker desktop**
+  - Specify multiple IPs using a comma
+- Use the `@` to specify paths accessible to the user.
+  - Paths are optional for each user.  
+  - Multiple paths can be specified by using a comma. If none are provided, the user will have access to all paths/streams
+- Multiple users can be specified by using  `|` as a separator
+
+  **EXAMPLE**:
+
+```yaml
+  STREAM_AUTH=user:pass@cam-1,other-cam|second-user:password@just-one-cam|user3:pass
+```
+
+- `user:pass`  has access to `cam-1` and `other-cam`
+- `second-user:password` has access to `just-one-cam`
+- `user3:pass` has access to **all** paths/cameras
+
+  See [Wiki](https://github.com/mrlt8/docker-wyze-bridge/wiki/Authentication#custom-stream-auth) for more information and examples.
+
+### Recording via MediaMTX
+
+Recoding streams has been updated to use MediaMTX with the option to delete older clips.
+
+Use `RECORD_ALL` or `RECORD_CAM_NAME` to enable recording.
+
+- `RECORD_FILE_NAME` Available variables are `%path`, `{CAM_NAME}`, `{cam_name}`, `%Y` `%m` `%d` `%H` `%M` `%S` `%f` `%s` (time in strftime format).
+- `RECORD_PATH` Available variables are `%path`, `{CAM_NAME}`, `{cam_name}`, `%Y` `%m` `%d` `%H` `%M` `%S` `%f` `%s` (time in strftime format).
+- `RECORD_LENGTH` Length of each clip. Use `s` for seconds , `h` for hours. Defaults to `60s`
+- `RECORD_KEEP` Delete older clips. Use `s` for seconds , `h` for hours. Set to 0s to disable automatic deletion. Defaults to `0s`
+
+Note that as of release v3.10.0, which uses *mediaMTX 1.12.0*, requires the combination of your `RECORD_FILE_NAME` and `RECORD_PATH` settings
+specifying recording's file complete path **MUST** reference **ALL** of `%Y` `%m` `%d` `%H` `%M` `%S` tokens, for example:
+`RECORD_FILE_NAME = "%H%M%S%"` and `RECORD_PATH_NAME = "{path}/{cam_name}/%Y/%m/%d%"` would be valid. You can also just
+ensure the combined path includes `%s` (which is the unix epoch value as an integer).
 
 [View previous changes](https://github.com/idisposable/docker-wyze-bridge/releases)

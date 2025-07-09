@@ -42,6 +42,10 @@
       <Port><HostPort>8001</HostPort><ContainerPort>8001</ContainerPort><Protocol>udp</Protocol></Port>
       <Port><HostPort>8002</HostPort><ContainerPort>8002</ContainerPort><Protocol>udp</Protocol></Port>
       <Port><HostPort>8003</HostPort><ContainerPort>8003</ContainerPort><Protocol>udp</Protocol></Port>
+      <Port><HostPort>8004</HostPort><ContainerPort>8004</ContainerPort><Protocol>udp</Protocol></Port>
+      <Port><HostPort>8005</HostPort><ContainerPort>8005</ContainerPort><Protocol>udp</Protocol></Port>
+      <Port><HostPort>8006</HostPort><ContainerPort>8006</ContainerPort><Protocol>udp</Protocol></Port>
+      <Port><HostPort>8007</HostPort><ContainerPort>8007</ContainerPort><Protocol>udp</Protocol></Port>
       <Port><HostPort>8189</HostPort><ContainerPort>8189</ContainerPort><Protocol>udp</Protocol></Port>
       <Port><HostPort>8322</HostPort><ContainerPort>8322</ContainerPort><Protocol>tcp</Protocol></Port>
       <Port><HostPort>8554</HostPort><ContainerPort>8554</ContainerPort><Protocol>tcp</Protocol></Port>

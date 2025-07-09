@@ -20,6 +20,10 @@ ports:
   8001/udp: 8001
   8002/udp: 8002
   8003/udp: 8003
+  8004/udp: 8004
+  8005/udp: 8005
+  8006/udp: 8006
+  8007/udp: 8007
   8189/udp: 8189
   8189/tcp: 8189
   8322/tcp: 8322
@@ -37,6 +41,10 @@ ports_description:
   8001/udp: RTSP UDP/RTCP rtsp://localhost:8001/mystream
   8002/udp: RTSP RTP Multicast
   8003/udp: RTSP RTCP Multicast control
+  8004/udp: SRTP UDP with encryption
+  8005/udp: SRTCP UDP with encryption
+  8006/udp: SRTP UDP-Multicast with encryption
+  8007/udp: SRTCP UDP-Multicast with encryption
   8189/udp: WebRTC ICE/UDP
   8322/tcp: TCP/TLS/RTSPS rtsps://localhost:8322/mystream
   8554/tcp: RTSP rtsp://localhost:8554/mystream
