@@ -220,15 +220,14 @@ def purge_old(base_path: str, extension: str, keep_time: timedelta):
         except Exception as e:
             logger.error(f"[FFMPEG] Unexpected error in purge_old: {e}")
 
-    thread = AutoRemoveThread(purges_running, base_path, target=wrapped, name=f"{base_path}_purge")
-    thread.daemon = True  # Set thread as daemon
+    thread = AutoRemoveThread(purges_running, base_path, target=wrapped, name=f"{base_path}_purge", daemon=True)
     thread.start()
 
 def wait_for_purges():
     logger.debug("[FFMPEG] Waiting for all purge threads to complete.")
     for thread in purges_running.values():
-        with contextlib.suppress(ValueError, AttributeError, RuntimeError):
-            thread.join(timeout=30)
+        with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
+            thread.join(timeout=5.0)
 
     purges_running.clear()  # Clear the dictionary after waiting
     logger.debug("[FFMPEG] All purge threads have completed.")

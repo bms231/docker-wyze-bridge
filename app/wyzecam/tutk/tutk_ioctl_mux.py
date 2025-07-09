@@ -144,8 +144,8 @@ class TutkIOCtrlMux:
         See: [wyzecam.tutk.tutk_ioctl_mux.TutkIOCtrlMux.start_listening][]
         """
         self.queues[CONTROL_CHANNEL].put(STOP_SENTINEL)
-        with contextlib.suppress(ValueError, AttributeError, RuntimeError):
-            self.listener.join(timeout=60)
+        with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
+            self.listener.join(timeout=10)
         TutkIOCtrlMux._context_lock.release()
 
     def __enter__(self):

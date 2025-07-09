@@ -35,7 +35,6 @@ QueueTuple = namedtuple("queue", ["cam_resp", "cam_cmd"])
 
 class StreamStatus(IntEnum):
     OFFLINE = -90
-    INITIALIZING = -2
     STOPPING = -1
     DISABLED = 0
     STOPPED = 1
@@ -138,7 +137,6 @@ class WyzeStream(Stream):
         return self.state != StreamStatus.DISABLED
 
     def init(self) -> bool:
-        self.state = StreamStatus.INITIALIZING
         logger.info(
             f"🪄 MediaMTX Initializing WyzeCam {self.camera.model_name} - {self.camera.nickname} on {self.camera.ip}"
         )
@@ -146,8 +144,6 @@ class WyzeStream(Stream):
         return True
 
     def start(self) -> bool:
-        if self.health_check(False) != StreamStatus.STOPPED:
-            return False
         self.state = StreamStatus.CONNECTING
         logger.info(
             f"🎉 Connecting to WyzeCam {self.camera.model_name} - {self.camera.nickname} on {self.camera.ip}"
@@ -164,6 +160,7 @@ class WyzeStream(Stream):
                 self._state,
             ),
             name=self.uri,
+            daemon=True,
         )
         self.tutk_stream_process.start()
         return True
@@ -172,11 +169,10 @@ class WyzeStream(Stream):
         self._clear_mp_queue()
         self.start_time = 0
         self.state = StreamStatus.STOPPING
-        if self.tutk_stream_process and self.tutk_stream_process.is_alive():
-            with contextlib.suppress(ValueError, AttributeError, RuntimeError):
-                if self.tutk_stream_process.is_alive():
-                    self.tutk_stream_process.terminate()
-                    self.tutk_stream_process.join(5)
+        with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
+            if self.tutk_stream_process:
+                self.tutk_stream_process.terminate()
+                self.tutk_stream_process.join(0.5)
 
         self.tutk_stream_process = None
         self.state = StreamStatus.STOPPED
@@ -474,12 +470,12 @@ def start_tutk_stream(uri: str, stream: StreamTuple, queue: QueueTuple, state: c
             control_thread = None
 
 def stop_and_wait(thread: Thread):
-    with contextlib.suppress(ValueError, AttributeError, RuntimeError):
+    with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
         if thread and thread.is_alive():
-            thread.join(timeout=5)
+            thread.join(timeout=0.5)
 
 def setup_audio(sess: WyzeIOTCSession, uri: str) -> Thread:
-    audio_thread = Thread(target=sess.recv_audio_pipe, name=f"{uri}_audio")
+    audio_thread = Thread(target=sess.recv_audio_pipe, name=f"{uri}_audio", daemon=True)
     audio_thread.start()
     return audio_thread
 
@@ -488,6 +484,7 @@ def setup_control(sess: WyzeIOTCSession, queue: QueueTuple) -> Thread:
         target=camera_control,
         args=(sess, queue.cam_resp, queue.cam_cmd),
         name=f"{sess.camera.name_uri}_control",
+        daemon=True
     )
     control_thread.start()
     return control_thread

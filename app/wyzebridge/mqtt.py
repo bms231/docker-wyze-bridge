@@ -3,11 +3,13 @@ import json
 from functools import wraps
 from socket import gaierror
 from time import sleep
-from typing import Optional
+from typing import Callable, List, Optional, Union
 
-import paho.mqtt.client
-import paho.mqtt.publish
+from paho.mqtt import publish as mqtt_publish
+from paho.mqtt.client import Client as mqtt_client, PayloadType
+from paho.mqtt.enums import CallbackAPIVersion
 
+from wyzebridge.stream import Stream
 from wyzecam.api_models import WyzeCamera
 from wyzebridge.build_config import VERSION
 from wyzebridge.bridge_utils import env_bool
@@ -15,14 +17,15 @@ from wyzebridge.config import IMG_PATH, MQTT_ENABLED, MQTT_DISCOVERY, MQTT_HOST,
 from wyzebridge.logging import logger
 from wyzebridge.wyze_commands import GET_CMDS, GET_PAYLOAD, PARAMS, SET_CMDS
 
-is_mqtt_active: bool = MQTT_ENABLED
+class MQTTState:
+    active: bool = MQTT_ENABLED
+
+mqtt_state = MQTTState()
 
 def mqtt_enabled(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        global is_mqtt_active
-
-        if not is_mqtt_active:
+        if not mqtt_state.active:
             return
 
         for retry in range(1, MQTT_RETRIES + 1):
@@ -36,7 +39,7 @@ def mqtt_enabled(func):
             sleep(1)
 
         logger.error(f"[MQTT] {MQTT_RETRIES}/{MQTT_RETRIES} retries failed. Disabling MQTT.")
-        is_mqtt_active = False
+        mqtt_state.active = False
 
     return wrapper
 
@@ -77,7 +80,7 @@ def publish_discovery(cam_uri: str, cam: WyzeCamera, stopped: bool = True) -> No
     publish_messages(msgs)
 
 @mqtt_enabled
-def mqtt_sub_topic(m_topics: list, callback) -> Optional[paho.mqtt.client.Client]:
+def mqtt_sub_topic(m_topics: list[str], callback: Callable) -> Optional[mqtt_client]:
     """Connect to mqtt and return the client."""
 
     def on_connect(client, *_):
@@ -88,9 +91,8 @@ def mqtt_sub_topic(m_topics: list, callback) -> Optional[paho.mqtt.client.Client
             # Clear Retain Flag
             client.publish(f"{MQTT_TOPIC}/{topic}", retain=True)
             client.subscribe(f"{MQTT_TOPIC}/{topic}")
-
-    client = paho.mqtt.client.Client(paho.mqtt.client.CallbackAPIVersion.VERSION2)
-
+            
+    client = mqtt_client(CallbackAPIVersion.VERSION2)
     client.username_pw_set(MQTT_USER, MQTT_PASS or None)
     client.user_data_set(callback)
     client.on_connect = on_connect
@@ -99,12 +101,13 @@ def mqtt_sub_topic(m_topics: list, callback) -> Optional[paho.mqtt.client.Client
     logger.info(f"[MQTT] Connecting to {MQTT_HOST}:{MQTT_PORT or 1883}")
     client.connect(MQTT_HOST, int(MQTT_PORT or 1883), 30)
     
-    logger.info("[MQTT] Starting")
+    logger.info("[MQTT] Starting client loop")
     client.loop_start()
 
     return client
 
-def bridge_status(client: Optional[paho.mqtt.client.Client]):
+@mqtt_enabled
+def bridge_status(client: Optional[mqtt_client]):
     """Set bridge online if MQTT is enabled."""
     if not client:
         return
@@ -112,11 +115,11 @@ def bridge_status(client: Optional[paho.mqtt.client.Client]):
     client.publish(f"{MQTT_TOPIC}/state", "online", retain=False)
 
 @mqtt_enabled
-def publish_messages(messages: list) -> None:
+def publish_messages(messages) -> None:
     """Publish multiple messages to the MQTT server."""
     logger.debug(f"[MQTT] Publishing {len(messages)} messages to {MQTT_HOST}:{MQTT_PORT} as {MQTT_USER=}")
 
-    paho.mqtt.publish.multiple(
+    mqtt_publish.multiple(
         messages,
         hostname=MQTT_HOST,
         port=int(MQTT_PORT or 1883),
@@ -124,10 +127,10 @@ def publish_messages(messages: list) -> None:
     )
 
 @mqtt_enabled
-def publish_topic(topic: str, message=None, retain=False):
+def publish_topic(topic: str, message: PayloadType=None, retain=False):
     logger.debug(f"[MQTT] Publishing {message} to {MQTT_HOST}:{MQTT_PORT} topic {MQTT_TOPIC}/{topic} as {MQTT_USER=}")
 
-    paho.mqtt.publish.single(
+    mqtt_publish.single(
         topic=f"{MQTT_TOPIC}/{topic}",
         payload=message,
         hostname=MQTT_HOST,
@@ -151,11 +154,12 @@ def update_preview(cam_name: str):
             publish_topic(f"{cam_name}/image", img.read(), True)
 
 @mqtt_enabled
-def cam_control(cams: dict, callback):
-    topics = []
+def cam_control(cams: dict[str, Stream], callback: Callable) -> Optional[mqtt_client]:
+    topics: list[str] = []
     for uri in cams:
         topics += [f"{uri.lower()}/{t}/set" for t in SET_CMDS]
         topics += [f"{uri.lower()}/{t}/get" for t in GET_CMDS | PARAMS]
+
     if client := mqtt_sub_topic(topics, callback):
         if MQTT_DISCOVERY:
             uri_cams = {uri: cam.camera for uri, cam in cams.items()}
@@ -168,7 +172,7 @@ def cam_control(cams: dict, callback):
 
         return client
 
-def _mqtt_discovery(client, cams, msg):
+def _mqtt_discovery(client: mqtt_client, cams: dict[str, WyzeCamera], msg):
     if msg.payload.decode().lower() != "online" or not cams:
         return
 

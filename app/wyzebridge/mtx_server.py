@@ -39,6 +39,7 @@ class MtxInterface:
             logger.debug(f"[MTX] Writing config to {MTX_CONFIG=}")
             with open(MTX_CONFIG, "w") as f:
                 yaml.safe_dump(self.data, f, sort_keys=False)
+            self._modified = False
 
     def dump_to_yaml(self) -> str:
         return yaml.safe_dump(self.data, sort_keys=False)
@@ -185,11 +186,9 @@ class MtxServer:
         return self.sub_process_alive()
 
     def stop(self):
-        if not self.sub_process:
-            return
-        if self.sub_process.poll() is None:
+        with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
             logger.info("[MTX] Stopping MediaMTX...")
-            with contextlib.suppress(ValueError, AttributeError, RuntimeError):
+            if self.sub_process and self.sub_process.poll() is None:
                 self.sub_process.terminate()
                 self.sub_process.communicate()
         self.sub_process = None
@@ -199,9 +198,11 @@ class MtxServer:
         return self.start()
 
     def health_check(self) -> bool:
-        if self.sub_process is not None and not self.sub_process_alive():
-            logger.error(f"[MediaMTX] Process exited with {self.sub_process.poll()}")
-            self.restart()
+        if self.sub_process is not None:
+             with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
+                 if not self.sub_process_alive():
+                    logger.error(f"[MediaMTX] Process exited with {self.sub_process.poll()}")
+                    self.restart()
 
         return self.sub_process_alive()
 

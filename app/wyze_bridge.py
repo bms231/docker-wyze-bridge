@@ -54,6 +54,7 @@ class WyzeBridge(Thread):
         self.api.login(fresh_data=fresh_data)
         WbAuth.set_email(email=self.api.get_user().email, force=fresh_data)
         self.mtx.setup_auth(WbAuth.api, STREAM_AUTH)
+        self.streams.stop_flag = False
         self.setup_streams()
         if self.streams.total < 1:
             return signal.raise_signal(signal.SIGINT)
@@ -91,8 +92,8 @@ class WyzeBridge(Thread):
 
             stream = WyzeStream(user, self.api, cam, options)
             stream.rtsp_fw_enabled = self.rtsp_fw_proxy(cam, stream)
-            self.mtx.add_path(stream.uri, not options.reconnect)
             self.streams.add(stream)
+            self.mtx.add_path(stream.uri, not options.reconnect)
 
             if env_cam("record", cam.name_uri):
                 self.mtx.record(stream.uri)
@@ -118,20 +119,21 @@ class WyzeBridge(Thread):
             sub_opt = replace(options, substream=True, quality=quality, record=record)
             logger.info(f"[++] Adding {cam.name_uri} substream quality: {quality} record: {record}")
             sub = WyzeStream(user, api, cam, sub_opt)
-            self.mtx.add_path(sub.uri, not options.reconnect)
             self.streams.add(sub)
+            self.mtx.add_path(sub.uri, not options.reconnect)
 
     def clean_up(self, *_):
         """Stop all streams and clean up before shutdown."""
-        if self.streams.stop_flag:
+        if self.streams and self.streams.stop_flag:
             sys.exit(0)
+
+        self.mtx.stop()
         if self.streams:
             self.streams.stop_all()
-        self.mtx.stop()
         logger.info("👋 goodbye!")
         sys.exit(0)
 
 if __name__ == "__main__":
     wb = WyzeBridge()
     wb.run()
-    sys.exit(0)
+    sys.exit()
