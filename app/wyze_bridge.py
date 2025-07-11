@@ -30,8 +30,8 @@ class WyzeBridge(Thread):
     def __init__(self) -> None:
         Thread.__init__(self)
 
-        for sig in ["SIGTERM", "SIGINT"]:
-            signal.signal(getattr(signal, sig), self.clean_up)
+        # for sig in ["SIGTERM", "SIGINT"]:
+        #    signal.signal(getattr(signal, sig), self.clean_up)
 
         print(f"\n🚀 DOCKER-WYZE-BRIDGE v{VERSION} {BUILD_STR}\n")
         self.api: WyzeApi = WyzeApi()
@@ -130,10 +130,13 @@ class WyzeBridge(Thread):
         self.mtx.stop()
         if self.streams:
             self.streams.stop_all()
-        logger.info("👋 goodbye!")
+        logger.warning("👋 goodbye!")
         sys.exit(0)
 
 if __name__ == "__main__":
+    logger.critical("DOCKER-WYZE-BRIDGE is not meant to be run directly, please use the docker image instead.")
     wb = WyzeBridge()
-    wb.run()
-    sys.exit()
+    logger.warning("Starting Wyze Bridge in fresh data mode.")
+    wb.run(fresh_data=True)
+    logger.warning("WyzeBridge run returned.")
+    sys.exit(0)
