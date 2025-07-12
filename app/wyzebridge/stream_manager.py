@@ -67,7 +67,7 @@ class StreamManager:
         if self.monitor_snapshots_thread is not None:
             logger.info("[STREAM] Stopping monitor_snapshots thread")
             with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
-                self.monitor_snapshots_thread.join(timeout=0.5)
+                self.monitor_snapshots_thread.join(timeout=20.0)
             self.monitor_snapshots_thread = None
 
         self.streams.clear()
@@ -130,7 +130,7 @@ class StreamManager:
         if self.monitor_snapshots_thread is not None:
             logger.info("[STREAM] Stopping previous monitor_snapshots thread")
             with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
-                self.monitor_snapshots_thread.join(timeout=0.5)
+                self.monitor_snapshots_thread.join(timeout=20.0)
             self.monitor_snapshots_thread = None
 
         # Start the thread as a daemon so it will not block program exit if still running

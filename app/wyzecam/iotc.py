@@ -63,6 +63,11 @@ class WyzeIOTC:
                                     less than 1, AV will set max number of AV channels as 1.
 
         """
+        self.initd = False
+        self.udp_port = udp_port
+        self.max_num_av_channels = max_num_av_channels
+        self.sdk_key = sdk_key or SDK_KEY
+
         if FORCE_IOTC_DETAIL:
             logging.basicConfig()
             logger.setLevel(logging.DEBUG)
@@ -76,10 +81,7 @@ class WyzeIOTC:
             path = pathlib.Path(tutk_platform_lib)
             tutk_platform_lib = tutk.load_library(str(path.absolute()))
 
-        if not sdk_key:
-            sdk_key = SDK_KEY
-
-        license_status = tutk.TUTK_SDK_Set_License_Key(tutk_platform_lib, str(sdk_key))
+        license_status = tutk.TUTK_SDK_Set_License_Key(tutk_platform_lib, str(self.sdk_key))
         if license_status < 0:
             raise tutk.TutkError(license_status)
 
@@ -88,10 +90,6 @@ class WyzeIOTC:
             raise tutk.TutkError(set_region)
 
         self.tutk_platform_lib: CDLL = tutk_platform_lib
-        self.initd = False
-        self.udp_port = udp_port
-        self.max_num_av_channels = max_num_av_channels
-        self.sdk_key = sdk_key
 
     def initialize(self):
         """Initialize the underlying TUTK library.
@@ -125,6 +123,7 @@ class WyzeIOTC:
         if self.initd:
             tutk.av_deinitialize(self.tutk_platform_lib)
             tutk.iotc_deinitialize(self.tutk_platform_lib)
+            self.max_num_av_channels = None
             self.initd = False
 
     @property

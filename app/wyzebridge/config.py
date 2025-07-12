@@ -25,6 +25,9 @@ CONNECT_TIMEOUT: int = env_bool("CONNECT_TIMEOUT", "20", style="int")
 TOKEN_PATH: str = "/config/" if HASS_TOKEN else "/tokens/"
 IMG_PATH: str = f'/{env_bool("IMG_DIR", r"/media/wyze/img").strip("/")}/'
 
+SUBSTREAM: bool = env_bool("SUBSTREAM", style="bool")
+RTSP_FW: bool = env_bool("RTSP_FW", style="bool")
+
 LATITUDE: float = float(getenv("LATITUDE", "0"))
 LONGITUDE: float = float(getenv("LONGITUDE", "0"))
 SNAPSHOT_CAMERAS: list[str] = [cam.strip() for cam in getenv("SNAPSHOT_CAMERAS", "").split(",") if cam.strip()]

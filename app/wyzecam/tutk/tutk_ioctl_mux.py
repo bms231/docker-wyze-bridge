@@ -145,7 +145,7 @@ class TutkIOCtrlMux:
         """
         self.queues[CONTROL_CHANNEL].put(STOP_SENTINEL)
         with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
-            self.listener.join(timeout=10)
+            self.listener.join(timeout=10.0)
         TutkIOCtrlMux._context_lock.release()
 
     def __enter__(self):

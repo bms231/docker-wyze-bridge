@@ -227,7 +227,7 @@ def wait_for_purges():
     logger.debug("[FFMPEG] Waiting for all purge threads to complete.")
     for thread in purges_running.values():
         with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
-            thread.join(timeout=5.0)
+            thread.join(timeout=30.0)
 
     purges_running.clear()  # Clear the dictionary after waiting
     logger.debug("[FFMPEG] All purge threads have completed.")

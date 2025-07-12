@@ -103,8 +103,7 @@ class WyzeStream(Stream):
         return self._state.value
 
     @state.setter
-    def state(self, value) -> None:
-        value = value.value if isinstance(value, StreamStatus) else value
+    def state(self, value: StreamStatus) -> None:
         if self._state.value != value:
             self._state.value = value
             update_mqtt_state(self.uri, self.status())
@@ -160,7 +159,6 @@ class WyzeStream(Stream):
                 self._state,
             ),
             name=self.uri,
-            daemon=True,
         )
         self.tutk_stream_process.start()
         return True
@@ -472,7 +470,7 @@ def start_tutk_stream(uri: str, stream: StreamTuple, queue: QueueTuple, state: c
 def stop_and_wait(thread: Thread):
     with contextlib.suppress(ValueError, AttributeError, RuntimeError, AssertionError):
         if thread and thread.is_alive():
-            thread.join(timeout=0.5)
+            thread.join(timeout=30.0)
 
 def setup_audio(sess: WyzeIOTCSession, uri: str) -> Thread:
     audio_thread = Thread(target=sess.recv_audio_pipe, name=f"{uri}_audio", daemon=True)
@@ -581,15 +579,13 @@ def check_net_mode(session_mode: int, uri: str) -> str:
 
 def set_cam_offline(uri: str, error: TutkError, was_offline: bool) -> None:
     """Do something when camera goes offline."""
-    state = "offline" if error.code == -90 else error.name # IOTC_ER_DEVICE_OFFLINE
+    offline_code:int = env_bool("OFFLINE_ERRNO", "-90", style="int")
+    is_offline = error.code == offline_code
+    state = "offline" if is_offline else error.name # IOTC_ER_DEVICE_OFFLINE
     update_mqtt_state(uri.lower(), str(state))
 
-    if str(error.code) not in env_bool("OFFLINE_ERRNO", "-90"):
-        return
-    if was_offline:  # Don't resend if previous state was offline.
-        return
-
-    send_webhook("offline", uri, f"{uri} is offline")
+    if is_offline and not was_offline:  # Don't resend if previous state was offline.
+        send_webhook("offline", uri, f"{uri} is offline")
 
 def is_timedout(start_time: float, timeout: int = 20) -> bool:
     return time() - start_time > timeout if start_time else False
