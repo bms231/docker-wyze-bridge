@@ -1,6 +1,7 @@
 import contextlib
 import json
 import logging
+import signal
 import sys
 import traceback
 from subprocess import PIPE, Popen
@@ -268,7 +269,9 @@ if __name__ == "__main__":
     api: WyzeApi = jsonpickle.decode(args.api)
     camera: WyzeCamera = jsonpickle.decode(args.camera)
     options: WyzeStreamOptions = jsonpickle.decode(args.options)
-    logger.debug(f"User {user.email=}, API {api=} Camera {camera=}, Options {options=}")
+
+    signal.signal(getattr(signal, "SIGTERM"), _clean_up)
+    signal.signal(getattr(signal, "SIGINT"), _clean_up)
 
     stream = TutkStreamProcess(args.uri, user, api, camera, options)
     stream.run()
