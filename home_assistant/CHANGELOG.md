@@ -1,5 +1,9 @@
 # What's Changed
 
+## What's Changed in v3.13.1
+
+Upgraded MediaMTX to 1.13.1
+
 ## What's Changed in v3.13.0
 
 Upgraded MediaMTX to 1.13.0
