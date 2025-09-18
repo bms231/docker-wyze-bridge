@@ -262,4 +262,4 @@ release with the PRs I know work. **Note** The badges on the GitHub repo may be 
 - FIX: Add formatting of {cam_name} and {img} to webhooks.py by @traviswparker which was lost
 - Chore: Adjust everything for move to my GitHub repo and Docker Hub account
 
-[View previous changes](https://github.com/idisposable/docker-wyze-bridge/releases)
+[View previous changes](https://github.com/bms231/docker-wyze-bridge/releases)

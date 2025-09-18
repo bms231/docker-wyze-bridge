@@ -1,8 +1,8 @@
-[![Docker](https://github.com/idisposable/docker-wyze-bridge/actions/workflows/docker-image.yml/badge.svg)](https://github.com/idisposable/docker-wyze-bridge/actions/workflows/docker-image.yml)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/idisposable/docker-wyze-bridge?logo=github)](https://github.com/idisposable/docker-wyze-bridge/releases/latest)
-[![Docker Image Size (latest semver)](https://img.shields.io/docker/image-size/idisposablegithub365/wyze-bridge?sort=semver&logo=docker&logoColor=white)](https://hub.docker.com/r/idisposablegithub365/wyze-bridge)
-[![Docker Pulls](https://img.shields.io/docker/pulls/idisposablegithub365/wyze-bridge?logo=docker&logoColor=white)](https://hub.docker.com/r/idisposablegithub365/wyze-bridge)
-![GitHub Repo stars](https://img.shields.io/github/stars/idisposable/docker-wyze-bridge?style=social)
+[![Docker](https://github.com/bms231/docker-wyze-bridge/actions/workflows/docker-image.yml/badge.svg)](https://github.com/bms231/docker-wyze-bridge/actions/workflows/docker-image.yml)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/bms231/docker-wyze-bridge?logo=github)](https://github.com/bms231/docker-wyze-bridge/releases/latest)
+[![Docker Image Size (latest semver)](https://img.shields.io/docker/image-size/bms231/wyze-bridge?sort=semver&logo=docker&logoColor=white)](https://hub.docker.com/r/bms231/wyze-bridge)
+[![Docker Pulls](https://img.shields.io/docker/pulls/bms231/wyze-bridge?logo=docker&logoColor=white)](https://hub.docker.com/r/bms231/wyze-bridge)
+![GitHub Repo stars](https://img.shields.io/github/stars/bms231/docker-wyze-bridge?style=social)
 
 # WebRTC/RTMP/RTSP/HLS Bridge for Wyze Cam
 
@@ -27,7 +27,7 @@ Please consider [supporting](https://ko-fi.com/mrlt8) this project if you found 
 ![Supports arm64 Architecture](https://img.shields.io/badge/arm64-yes-success.svg)
 ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-success.svg)
 ![Supports Apple Silicon Architecture](https://img.shields.io/badge/apple_silicon-yes-success.svg)
-[![Home Assistant Add-on](https://img.shields.io/badge/home_assistant-add--on-blue.svg?logo=homeassistant&logoColor=white)](https://github.com/idisposable/docker-wyze-bridge/wiki/Home-Assistant)
+[![Home Assistant Add-on](https://img.shields.io/badge/home_assistant-add--on-blue.svg?logo=homeassistant&logoColor=white)](https://github.com/bms231/docker-wyze-bridge/wiki/Home-Assistant)
 
 Should work on most x64 systems as well as on most modern arm-based systems like the Raspberry Pi 3/4/5 or Apple Silicon M1/M2/M3.
 

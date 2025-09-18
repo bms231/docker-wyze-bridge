@@ -1,1 +1,1 @@
-FROM idisposablegithub365/wyze-bridge:hw
+FROM bms231/wyze-bridge:hw

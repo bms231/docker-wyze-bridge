@@ -75,12 +75,12 @@ LABEL \
     io.hass.description="Bridges Wyze Cameras into Home Assistant using MediaMTX in Docker container" \
     io.hass.type="addon" \
     io.hass.version=${BUILD_VERSION} \
-    maintainer="Marc Brooks <idisposable@gmail.com>" \
+    maintainer="Brian" \
     org.label-schema.name="Docker Wyze Bridge HA" \
     org.label-schema.description="Docker Wyze Bridge for Home Assistant" \
     org.label-schema.build-date=${BUILD_DATE} \
     org.label-schema.schema-version="1.0" \
-    org.label-schema.usage="https://github.com/IDisposable/docker-wyze-bridge/blob/main/README.md" \
+    org.label-schema.usage="https://github.com/bms231/docker-wyze-bridge/blob/main/README.md" \
     org.label-schema.vcs-ref=${GITHUB_SHA} \
-    org.label-schema.vcs-url="https://github.com/IDisposable/docker-wyze-bridge/" \
-    org.label-schema.vendor="HomeAssistant add-ons by Marc Brooks"
+    org.label-schema.vcs-url="https://github.com/bms231/docker-wyze-bridge/" \
+    org.label-schema.vendor="HomeAssistant add-ons Originally by Marc Brooks"

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>docker-wyze-bridge</Name>
-  <Repository>idisposablegithub365/wyze-bridge</Repository>
-  <Registry>https://hub.docker.com/r/idisposablegithub365/wyze-bridge</Registry>
+  <Repository>bms231/wyze-bridge</Repository>
+  <Registry>https://hub.docker.com/r/bms231/wyze-bridge</Registry>
   <Branch>
     <Tag>latest</Tag>
     <TagDescription>Latest stable release.</TagDescription>
@@ -20,8 +20,8 @@
     <TagDescription>Latest development release for testing future changes.</TagDescription>
   </Branch>
   <Network>host</Network>
-  <Support>https://github.com/idisposable/docker-wyze-bridge</Support>
-  <Project>https://github.com/idisposable/docker-wyze-bridge</Project>
+  <Support>https://github.com/bms231/docker-wyze-bridge</Support>
+  <Project>https://github.com/bms231/docker-wyze-bridge</Project>
   <Overview>WebRTC/RTSP/RTMP/LL-HLS bridge for Wyze cams in a docker container.</Overview>
   <Category>HomeAutomation:</Category>
   <WebUI>http://[IP]:[PORT:5000]</WebUI>
