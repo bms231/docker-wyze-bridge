@@ -43,7 +43,7 @@ RUN set -eux; \
     cd /build; \
     . app/.env; \
     mkdir -p tokens ${QSV:+usr/lib}; \
-    curl -SL https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n6.1-latest-linux64-lgpl-6.1.tar.xz -o ffmpeg.tar.xz; \
+    curl -SL https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n7.1-latest-linux64-lgpl-7.1.tar.xz -o ffmpeg.tar.xz; \
     tar -Jxf ffmpeg.tar.xz --strip-components=1 -C usr/local --wildcards '*ffmpeg'; \
     rm ffmpeg.tar.xz; \
     curl -fsSL https://github.com/bluenviron/mediamtx/releases/download/v${MTX_TAG}/mediamtx_v${MTX_TAG}_linux_${MTX_ARCH}.tar.gz -o mediamtx.tar.gz; \
