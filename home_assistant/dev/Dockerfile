@@ -1,1 +1,1 @@
-FROM idisposablegithub365/wyze-bridge:dev
+FROM bms231/wyze-bridge:dev
