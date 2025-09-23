@@ -231,8 +231,9 @@ def get_camera_list(auth_info: WyzeCredential) -> list[WyzeCamera]:
     for device in data["device_list"]:
         if device["product_type"] != "Camera":
             continue
-        logger.info(f"☁️ Fetching '{device_params}' from the Wyze API...")
+        
         device_params = device.get("device_params", {})
+        logger.info(f"☁️ Fetching '{device_params}' from the Wyze API...")
         p2p_id: Optional[str] = device_params.get("p2p_id")
         p2p_type: Optional[int] = device_params.get("p2p_type")
         ip: Optional[str] = device_params.get("ip")
