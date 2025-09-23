@@ -12,6 +12,7 @@ from requests import PreparedRequest, Response, get, post
 
 from wyzebridge.build_config import APP_VERSION, IOS_VERSION, VERSION
 from wyzecam.api_models import WyzeAccount, WyzeCamera, WyzeCredential
+from wyzebridge.logging import logger
 
 SCALE_USER_AGENT = f"Wyze/{APP_VERSION} (iPhone; iOS {IOS_VERSION}; Scale/3.00)"
 AUTH_API = "https://auth-prod.api.wyze.com"
@@ -230,7 +231,7 @@ def get_camera_list(auth_info: WyzeCredential) -> list[WyzeCamera]:
     for device in data["device_list"]:
         if device["product_type"] != "Camera":
             continue
-
+        logger.info(f"☁️ Fetching '{device_params}' from the Wyze API...")
         device_params = device.get("device_params", {})
         p2p_id: Optional[str] = device_params.get("p2p_id")
         p2p_type: Optional[int] = device_params.get("p2p_type")
