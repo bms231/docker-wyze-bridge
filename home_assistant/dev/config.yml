@@ -1,7 +1,7 @@
 name: Docker Wyze Bridge (DEV branch)
 description: WebRTC/RTSP/RTMP/LL-HLS bridge for Wyze cams in a docker container. DEV build. Use the REBUILD button to pull latest image.
 slug: docker_wyze_bridge_dev
-url: https://github.com/bms231/docker-wyze-bridge
+url: https://github.com/lukeb212/docker-wyze-bridge
 version: dev
 stage: experimental
 arch:

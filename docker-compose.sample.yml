@@ -2,7 +2,7 @@ services:
     wyze-bridge:
         container_name: wyze-bridge
         restart: unless-stopped
-        image: bms231/wyze-bridge:latest
+        image: lukeb212/wyze-bridge:latest
         network_mode: host
         #ports:
         #    - 1935:1935/tcp # RTMP rtmp://localhost:1935/mystream?user=myuser&pass=mypass
