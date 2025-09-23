@@ -1,1 +1,1 @@
-FROM bms231/wyze-bridge:latest
+FROM lukeb212/wyze-bridge:latest
