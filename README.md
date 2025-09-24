@@ -55,6 +55,10 @@ You can then use the web interface at `http://localhost:5050` where `localhost` 
 
 See [basic usage](#basic-usage) for additional information or visit the [wiki page](https://github.com/bms231/docker-wyze-bridge/wiki/Home-Assistant) for additional information on using the bridge as a Home Assistant Add-on.
 
+## What's Changed in v3.12.5
+
+Adding support to manually IP your cameras
+
 ## What's Changed in v3.12.4
 
 Added support for Cam Pan v4
