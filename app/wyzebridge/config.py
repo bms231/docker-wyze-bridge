@@ -1,3 +1,5 @@
+import os, json
+from typing import Dict
 from os import environ, getenv
 
 from wyzebridge.build_config import BUILD_STR
@@ -23,6 +25,7 @@ CONNECT_TIMEOUT: int = env_bool("CONNECT_TIMEOUT", "20", style="int")
 
 # TODO: change TOKEN_PATH  to /config for all:
 TOKEN_PATH: str = "/config/" if HASS_TOKEN else "/tokens/"
+IP_OVERRIDES_FILE = os.path.join(TOKEN_PATH, "ip_overrides.json")
 IMG_PATH: str = f'/{env_bool("IMG_DIR", r"/media/wyze/img").strip("/")}/'
 
 LATITUDE: float = float(getenv("LATITUDE", "0"))
@@ -93,3 +96,52 @@ for key, value in environ.items():
         print(f"\n[!] WARNING: In {BUILD_STR}, {key} is deprecated! Please use {new_key} instead\n")
         environ.pop(key, None)
         environ[new_key] = value
+
+
+def _parse_overrides_text(text: str) -> Dict[str, str]:
+    """Accept nickname:ip or nickname=ip, separated by newlines/commas/semicolons."""
+    mapping: Dict[str, str] = {}
+    if not text:
+        return mapping
+    text = text.replace(",", "\n").replace(";", "\n")
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if ":" in line:
+            k, v = line.split(":", 1)
+        elif "=" in line:
+            k, v = line.split("=", 1)
+        else:
+            continue
+        k, v = k.strip(), v.strip()
+        if k and v:
+            mapping[k] = v
+    return mapping
+
+def load_ip_overrides() -> Dict[str, str]:
+    """
+    Return merged {nickname: ip} from file + env (env wins).
+    - File path: /config/ip_overrides.json (if present)
+    - Env var : WB_IP_OVERRIDES (from HA add-on Configuration)
+    """
+    file_map: Dict[str, str] = {}
+    try:
+        with open(IP_OVERRIDES_FILE, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+            file_map = {str(k).strip(): str(v).strip() for k, v in raw.items()}
+    except Exception:
+        file_map = {}
+
+    env_map = _parse_overrides_text(os.getenv("WB_IP_OVERRIDES", ""))
+    return {**file_map, **env_map}
+
+def save_ip_overrides(mapping: Dict[str, str]) -> bool:
+    """Persist overrides from any UI path that writes to disk."""
+    try:
+        os.makedirs(TOKEN_PATH, exist_ok=True)
+        with open(IP_OVERRIDES_FILE, "w", encoding="utf-8") as f:
+            json.dump(mapping, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception:
+        return False
