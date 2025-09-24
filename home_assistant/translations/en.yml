@@ -13,7 +13,7 @@ configuration:
     description: Optional, but must be used in combination with the Key ID.
   WB_IP_OVERRIDES:
     name: Manual Camera IP Overrides
-    description: Some cams dont return local ips via Wyze IP and thus won't detect.  Put them here in nickname:ip format using - for spaces for manual addition to the bridge. example Garage-Cam:192.168.0.5
+    description: Some cams dont return local ips via Wyze IP and thus won't detect.  Put them here in nickname:ip format for manual addition to the bridge. example Garage Cam:192.168.0.5.  Name has to match exactly.
   WB_IP:
     name: Bridge IP
     description: Home Assistant IP for WebRTC ICE traffic.
