@@ -97,7 +97,7 @@ for key, value in environ.items():
         environ.pop(key, None)
         environ[new_key] = value
 
-
+'''
 def _parse_overrides_text(text: str) -> Dict[str, str]:
     """Accept nickname:ip or nickname=ip, separated by newlines/commas/semicolons."""
     mapping: Dict[str, str] = {}
@@ -142,6 +142,141 @@ def save_ip_overrides(mapping: Dict[str, str]) -> bool:
         os.makedirs(TOKEN_PATH, exist_ok=True)
         with open(IP_OVERRIDES_FILE, "w", encoding="utf-8") as f:
             json.dump(mapping, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception:
+        return False
+'''
+import os
+import json
+from typing import Dict, Tuple, Optional
+
+# existing:
+# TOKEN_PATH = ...
+IP_OVERRIDES_FILE = os.path.join(TOKEN_PATH, "ip_overrides.json")
+
+
+def _parse_overrides_text(text: str) -> Dict[str, Tuple[str, Optional[int]]]:
+    """
+    Accepts nickname:ip[:p2p_type] or nickname=ip[:p2p_type],
+    separated by newlines/commas/semicolons.
+    Returns {nickname: (ip, p2p_type_or_None)}.
+    """
+    mapping: Dict[str, Tuple[str, Optional[int]]] = {}
+    if not text:
+        return mapping
+
+    text = text.replace(",", "\n").replace(";", "\n")
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        # split nickname from value using first ':' or '='
+        if ":" in line:
+            nick, val = line.split(":", 1)
+        elif "=" in line:
+            nick, val = line.split("=", 1)
+        else:
+            # malformed line; ignore
+            continue
+
+        nick = nick.strip()
+        val = val.strip()
+        if not nick or not val:
+            continue
+
+        # Now parse val: either "ip" or "ip:p2p_type"
+        ip = val
+        p2p_val: Optional[int] = None
+        if ":" in val:
+            ip_part, maybe_p2p = val.split(":", 1)
+            ip_part = ip_part.strip()
+            maybe_p2p = maybe_p2p.strip()
+            if ip_part:
+                ip = ip_part
+            if maybe_p2p:
+                try:
+                    p2p_val = int(maybe_p2p)
+                except ValueError:
+                    p2p_val = None  # ignore bad p2p token
+
+        if ip:
+            mapping[nick] = (ip, p2p_val)
+
+    return mapping
+
+
+def _coerce_file_value(v) -> Tuple[str, Optional[int]]:
+    """
+    Backward/forward compatible coercion of a JSON value from ip_overrides.json:
+    - "192.168.0.1"                     -> ("192.168.0.1", None)
+    - "192.168.0.1:3"                   -> ("192.168.0.1", 3)
+    - {"ip": "...", "p2p_type": 3}      -> ("...", 3)
+    - {"ip": "..."}                     -> ("...", None)
+    Anything else -> ignored by caller.
+    """
+    if isinstance(v, str):
+        parsed = _parse_overrides_text(f"n:{v}")  # fake nickname to reuse parser
+        # will be {"n": (ip, p2p?)} or {}
+        if parsed:
+            return next(iter(parsed.values()))
+    elif isinstance(v, dict):
+        ip = str(v.get("ip", "")).strip()
+        p2p = v.get("p2p_type", None)
+        try:
+            p2p_int = int(p2p) if p2p is not None else None
+        except (TypeError, ValueError):
+            p2p_int = None
+        if ip:
+            return (ip, p2p_int)
+    raise ValueError("uncoercible override value")
+
+
+def load_ip_overrides() -> Dict[str, Tuple[str, Optional[int]]]:
+    """
+    Return merged {nickname: (ip, p2p_type_or_None)} from file + env (env wins).
+    - File path: /config/ip_overrides.json (if present)
+    - Env var : WB_IP_OVERRIDES (from HA add-on Configuration), supports :p2p_type
+    """
+    file_map: Dict[str, Tuple[str, Optional[int]]] = {}
+
+    # Read JSON file (supports both string values and {ip,p2p_type} objects)
+    try:
+        with open(IP_OVERRIDES_FILE, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+        if isinstance(raw, dict):
+            for k, v in raw.items():
+                k_str = str(k).strip()
+                try:
+                    file_map[k_str] = _coerce_file_value(v)
+                except ValueError:
+                    # ignore malformed entries
+                    continue
+    except Exception:
+        file_map = {}
+
+    # Parse env text
+    env_text = os.getenv("WB_IP_OVERRIDES", "")
+    env_map = _parse_overrides_text(env_text)
+
+    # env overrides file on conflicts
+    merged = {**file_map, **env_map}
+    return merged
+
+
+def save_ip_overrides(mapping: Dict[str, Tuple[str, Optional[int]]]) -> bool:
+    """
+    Persist overrides to /config/ip_overrides.json.
+    File format stays simple and backward compatible:
+      { "Nickname": "ip" } or { "Nickname": "ip:p2p" }
+    """
+    try:
+        os.makedirs(TOKEN_PATH, exist_ok=True)
+        serializable: Dict[str, str] = {}
+        for k, (ip, p2p) in mapping.items():
+            serializable[str(k)] = f"{ip}:{p2p}" if p2p is not None else ip
+        with open(IP_OVERRIDES_FILE, "w", encoding="utf-8") as f:
+            json.dump(serializable, f, indent=2, ensure_ascii=False)
         return True
     except Exception:
         return False

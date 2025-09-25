@@ -230,7 +230,9 @@ def get_camera_list(auth_info: WyzeCredential) -> list[WyzeCamera]:
     # load + normalize overrides once
     _norm = lambda s: str(s).strip().casefold()
     _ip_overrides_raw = load_ip_overrides()
-    _ip_overrides = {_norm(k): str(v).strip() for k, v in _ip_overrides_raw.items()}
+    #_ip_overrides = {_norm(k): str(v).strip() for k, v in _ip_overrides_raw.items()}
+    _ip_overrides = {_norm(k): (ip.strip(), p2p) for k, (ip, p2p) in _ip_overrides_raw.items()}
+
 
     data = get_homepage_object_list(auth_info)
     result = []
@@ -266,8 +268,11 @@ def get_camera_list(auth_info: WyzeCredential) -> list[WyzeCamera]:
         # if this camera is listed in overrides, allow it even if p2p_type is missing
         # (and fill IP from override if cloud didn't provide one)
         if nn in _ip_overrides:
+            ov_ip, ov_p2p = _ip_overrides[nn]
             if not ip:
-                ip = _ip_overrides[nn]
+                ip = ov_ip
+            if ov_p2p is not None:
+                p2p_type = ov_p2p  # override unconditionally
         else:
             # not listed in overrides → keep original p2p gate
             if not p2p_type:
