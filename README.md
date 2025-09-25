@@ -1,3 +1,10 @@
+
+DO NOT USE THIS BRANCH
+
+You cannot get wyze pan cam v4 to work as they no longer support P2P via TUKT firmware as a company choice.  Bad call Wyze.  
+
+
+
 # Docker Wyze Bridge (redux)
 
 [![Docker](https://github.com/bms231/docker-wyze-bridge/actions/workflows/docker-image.yml/badge.svg)](https://github.com/bms231/docker-wyze-bridge/actions/workflows/docker-image.yml)
