@@ -130,7 +130,7 @@
   <Config Name="Stream Host Name" Target="DOMAIN" Default="" Mode="" Description="Specifies the hostname for the camera stream URLs. Defaults to the Home Assistant domain or localhost" Type="Variable" Display="advanced" Required="false" Mask="false"/>
   <Config Name="Local Latitude" Target="LATITUDE" Default="" Mode="" Description="Used to compute sunset/sunrise for snapshots" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Local Longitude" Target="LONGITUDE" Default="" Mode="" Description="Used to compute sunset/sunrise for snapshots" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Manual camera IP overrides" Target="WB_IP_OVERRIDES" Default="" Description="Enter nickname-to-IP pairs. Format: Nickname:IP (or Nickname=IP). Separate multiple entries with newlines, semicolons, or commas. Example: Garage Cam:192.168.1.55; Driveway=192.168.1.101" Type="Variable" Display="always" Required="false" Mask="false">
+  <Config Name="Manual camera IP overrides" Target="WB_IP_OVERRIDES" Default="" Description="Enter nickname-to-IP pairs plus p2p_type. Format: Nickname:IP:p2p. Separate multiple entries with newlines, semicolons, or commas. Example: Garage Cam:192.168.1.55:3; Driveway=192.168.1.101:3" Type="Variable" Display="always" Required="false" Mask="false">
 </Config>
 
 </Container>

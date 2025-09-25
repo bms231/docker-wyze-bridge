@@ -12,7 +12,12 @@ from wyzebridge.config import MTX_HLSVARIANT, MTX_READTIMEOUT, MTX_WRITEQUEUESIZ
 from wyzebridge.bridge_utils import env_bool
 from wyzebridge.logging import logger
 
-MTX_CONFIG: str = "/app/mediamtx.yml"
+#MTX_CONFIG: str = "/app/mediamtx.yml"
+MTX_CONFIG = (
+    os.getenv("MTX_CONFIG")
+    or os.getenv("MEDIA_MTX_CONFIG")
+    or (Path("mediamtx.yml").resolve() if Path("mediamtx.yml").is_file() else str(Path(__file__).resolve().parents[1] / "mediamtx.yml"))
+)
 MTX_PATH: str = "%path"
 
 class MtxInterface:
