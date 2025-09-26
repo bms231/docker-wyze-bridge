@@ -69,6 +69,7 @@ schema:
   WYZE_PASSWORD: password?
   API_ID: match(\s*[a-fA-F0-9-]{36}\s*)?
   API_KEY: match(\s*[a-zA-Z0-9]{60}\s*)?
+  WB_IP_OVERRIDES: str?
   WB_IP: str?
   REFRESH_TOKEN: str?
   ACCESS_TOKEN: str?

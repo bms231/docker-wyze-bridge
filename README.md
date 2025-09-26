@@ -1,3 +1,10 @@
+
+DO NOT USE THIS BRANCH
+
+You cannot get wyze pan cam v4 to work as they no longer support P2P via TUKT firmware as a company choice.  Bad call Wyze.  
+
+
+
 # Docker Wyze Bridge (redux)
 
 [![Docker](https://github.com/lukeb212/docker-wyze-bridge/actions/workflows/docker-image.yml/badge.svg)](https://github.com/lukeb212/docker-wyze-bridge/actions/workflows/docker-image.yml)
@@ -54,6 +61,10 @@ docker run -p 8554:8554 -p 8888:8888 -p 5050:5000 -e WB_AUTH=false lukeb212/wyze
 You can then use the web interface at `http://localhost:5050` where `localhost` is the hostname or ip of the machine running the bridge.
 
 See [basic usage](#basic-usage) for additional information or visit the [wiki page](https://github.com/lukeb212/docker-wyze-bridge/wiki/Home-Assistant) for additional information on using the bridge as a Home Assistant Add-on.
+
+## What's Changed in v3.12.5
+
+Adding support to manually IP your cameras
 
 ## What's Changed in v3.12.4
 

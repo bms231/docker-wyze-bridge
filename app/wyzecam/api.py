@@ -7,6 +7,7 @@ from datetime import datetime
 from hashlib import md5
 from os import getenv
 from typing import Any, Optional
+from wyzebridge.config import load_ip_overrides
 
 from requests import PreparedRequest, Response, get, post
 
@@ -226,6 +227,14 @@ def get_homepage_object_list(auth_info: WyzeCredential) -> dict[str, Any]:
 
 def get_camera_list(auth_info: WyzeCredential) -> list[WyzeCamera]:
     """Return a list of all cameras on the account."""
+    #ip_overrides = load_ip_overrides()
+    # load + normalize overrides once
+    _norm = lambda s: str(s).strip().casefold()
+    _ip_overrides_raw = load_ip_overrides()
+    #_ip_overrides = {_norm(k): str(v).strip() for k, v in _ip_overrides_raw.items()}
+    _ip_overrides = {_norm(k): (ip.strip(), p2p) for k, (ip, p2p) in _ip_overrides_raw.items()}
+
+
     data = get_homepage_object_list(auth_info)
     result = []
     for device in data["device_list"]:
@@ -241,6 +250,7 @@ def get_camera_list(auth_info: WyzeCredential) -> list[WyzeCamera]:
         mac: Optional[str] = device.get("mac")
         product_model: Optional[str] = device.get("product_model")
         nickname: Optional[str] = device.get("nickname")
+        nn = _norm(nickname) if nickname else ""
         timezone_name: Optional[str] = device.get("timezone_name")
         firmware_ver: Optional[str] = device.get("firmware_ver")
         dtls: Optional[int] = device_params.get("dtls")
@@ -251,8 +261,25 @@ def get_camera_list(auth_info: WyzeCredential) -> list[WyzeCamera]:
             "thumbnails_url"
         )
 
-        if not p2p_type:
-            continue
+        #if not p2p_type:  #removing because the new pan cam v4 doesnt return p2p_type and it isn't required
+        #    continue
+        #if not ip and nickname:
+        #    ov = ip_overrides.get(str(nickname).strip())
+        #    if ov:
+        #        ip = ov
+        # if this camera is listed in overrides, allow it even if p2p_type is missing
+        # (and fill IP from override if cloud didn't provide one)
+        if nn in _ip_overrides:
+            ov_ip, ov_p2p = _ip_overrides[nn]
+            if not ip:
+                ip = ov_ip
+            if ov_p2p is not None:
+                p2p_type = ov_p2p  # override unconditionally
+        else:
+            # not listed in overrides → keep original p2p gate
+            if not p2p_type:
+                continue
+ 
         if not ip:
             continue
         if not enr:

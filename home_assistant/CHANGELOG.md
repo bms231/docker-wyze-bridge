@@ -1,5 +1,9 @@
 # What's Changed
 
+## What's Changed in v3.12.5
+
+Adding support to manually IP your cameras
+
 ## What's Changed in v3.12.4
 
 Added support for Cam Pan v4
